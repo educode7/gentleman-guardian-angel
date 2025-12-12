@@ -1,150 +1,219 @@
-# AI Code Review
+<p align="center">
+  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
+  <img src="https://img.shields.io/badge/bash-5.0%2B-orange.svg" alt="Bash">
+  <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
+</p>
 
-> Provider-agnostic code review using AI. Works with Claude, Gemini, Codex, Ollama, and more.
+<h1 align="center">🤖 AI Code Review</h1>
 
-A standalone CLI tool that validates your staged files against your project's coding standards using any AI provider. No dependencies on Husky or any specific framework.
+<p align="center">
+  <strong>Provider-agnostic code review using AI</strong><br>
+  Use Claude, Gemini, Codex, Ollama, or any AI to enforce your coding standards.<br>
+  Zero dependencies. Pure Bash. Works everywhere.
+</p>
 
-## Features
+<p align="center">
+  <a href="#-quick-start">Quick Start</a> •
+  <a href="#-providers">Providers</a> •
+  <a href="#%EF%B8%8F-configuration">Configuration</a> •
+  <a href="#-commands">Commands</a> •
+  <a href="#-examples">Examples</a>
+</p>
 
-- **Provider Agnostic**: Use whichever AI you have installed (Claude, Gemini, Codex, Ollama)
-- **Zero Dependencies**: Pure Bash, works on any Unix system
-- **Git Hook Integration**: Automatic review on every commit
-- **Configurable**: File patterns, exclusions, custom rules file
-- **Strict Mode**: Fail builds on ambiguous AI responses
+---
 
-## Supported Providers
+## 🎯 Why?
 
-| Provider | Command Used | Installation |
-|----------|-------------|--------------|
-| Claude | `claude` | [claude.ai/code](https://claude.ai/code) |
-| Gemini | `gemini` | `npm i -g @google/gemini-cli` |
-| Codex | `codex exec` | `npm i -g @openai/codex` |
-| Ollama | `ollama run <model>` | [ollama.ai](https://ollama.ai) |
+You have coding standards. Your team ignores them. Code reviews catch issues too late.
 
-## Installation
+**AI Code Review** runs on every commit, validating your staged files against your project's `AGENTS.md` (or any rules file). It's like having a senior developer review every line before it hits the repo.
+
+```
+┌─────────────────┐     ┌──────────────┐     ┌─────────────────┐
+│   git commit    │ ──▶ │  AI Review   │ ──▶ │  ✅ Pass/Fail   │
+│  (staged files) │     │  (any LLM)   │     │  (with details) │
+└─────────────────┘     └──────────────┘     └─────────────────┘
+```
+
+**Key features:**
+- 🔌 **Provider agnostic** - Use whatever AI you have installed
+- 📦 **Zero dependencies** - Pure Bash, no Node/Python/Go required
+- 🪝 **Git native** - Installs as a standard pre-commit hook
+- ⚙️ **Highly configurable** - File patterns, exclusions, custom rules
+- 🚨 **Strict mode** - Fail CI on ambiguous responses
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-git clone https://github.com/your-org/ai-code-review.git
+# 1. Clone and install
+git clone https://github.com/AlanJui/ai-code-review.git
 cd ai-code-review
 ./install.sh
-```
 
-Or manually:
+# 2. Go to your project
+cd ~/your-project
 
-```bash
-# Copy to your PATH
-cp bin/ai-code-review /usr/local/bin/
-cp -r lib ~/.local/share/ai-code-review/
-chmod +x /usr/local/bin/ai-code-review
-```
-
-## Quick Start
-
-```bash
-# 1. Navigate to your project
-cd /path/to/your/project
-
-# 2. Initialize config
+# 3. Initialize config
 ai-code-review init
 
-# 3. Create your coding standards file
-# Edit AGENTS.md with your rules
+# 4. Create your rules file (AGENTS.md)
+cat > AGENTS.md << 'EOF'
+# Code Review Rules
 
-# 4. Install git hook
+## General
+- No console.log statements in production code
+- All functions must have JSDoc comments
+- Maximum file length: 300 lines
+
+## TypeScript
+- No `any` types
+- Use `const` over `let` when possible
+- Prefer interfaces over type aliases
+
+## React
+- Use functional components only
+- No inline styles - use Tailwind classes
+- Components must be accessible (aria labels, semantic HTML)
+EOF
+
+# 5. Install the git hook
 ai-code-review install
 
-# 5. Done! Reviews run automatically on commit
+# 6. Done! Now every commit gets reviewed 🎉
 ```
 
-## Configuration
+---
+
+## 🔌 Providers
+
+Use whichever AI CLI you have installed:
+
+| Provider | Config Value | CLI Used | Install |
+|----------|-------------|----------|---------|
+| **Claude** | `claude` | `claude --print` | [claude.ai/code](https://claude.ai/code) |
+| **Gemini** | `gemini` | `gemini` | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+| **Codex** | `codex` | `codex exec` | `npm i -g @openai/codex` |
+| **Ollama** | `ollama:<model>` | `ollama run <model>` | [ollama.ai](https://ollama.ai) |
+
+### Examples
+
+```bash
+# Use Claude (default)
+PROVIDER="claude"
+
+# Use Gemini
+PROVIDER="gemini"
+
+# Use OpenAI Codex
+PROVIDER="codex"
+
+# Use Ollama with Llama 3.2
+PROVIDER="ollama:llama3.2"
+
+# Use Ollama with CodeLlama
+PROVIDER="ollama:codellama"
+
+# Use Ollama with Qwen
+PROVIDER="ollama:qwen2.5-coder"
+```
+
+---
+
+## ⚙️ Configuration
 
 Create `.ai-code-review` in your project root:
 
 ```bash
 # AI Provider (required)
-# Options: claude, gemini, codex, ollama:<model>
 PROVIDER="claude"
 
-# File patterns to include (comma-separated)
+# File patterns to review (comma-separated globs)
+# Default: * (all files)
 FILE_PATTERNS="*.ts,*.tsx,*.js,*.jsx"
 
-# File patterns to exclude (comma-separated)
+# Patterns to exclude (comma-separated globs)
+# Default: none
 EXCLUDE_PATTERNS="*.test.ts,*.spec.ts,*.d.ts"
 
-# File containing review rules
+# File containing your coding standards
+# Default: AGENTS.md
 RULES_FILE="AGENTS.md"
 
-# Fail on ambiguous AI response
+# Fail if AI response is ambiguous (recommended for CI)
+# Default: true
 STRICT_MODE="true"
 ```
 
-### Global Config
+### Config Hierarchy
 
-For settings that apply to all your projects:
-
-```bash
-mkdir -p ~/.config/ai-code-review
-# Create ~/.config/ai-code-review/config with same format
-```
-
-### Environment Variables
-
-Override any setting with environment variables:
+1. **Environment variable** `AI_CODE_REVIEW_PROVIDER` (highest priority)
+2. **Project config** `.ai-code-review`
+3. **Global config** `~/.config/ai-code-review/config`
 
 ```bash
+# Override provider for one run
 AI_CODE_REVIEW_PROVIDER="gemini" ai-code-review run
 ```
 
-## Rules File (AGENTS.md)
+---
 
-Create an `AGENTS.md` file with your coding standards:
+## 📋 Commands
+
+```bash
+ai-code-review <command>
+```
+
+| Command | Description |
+|---------|-------------|
+| `run` | Run code review on staged files |
+| `install` | Install git pre-commit hook |
+| `uninstall` | Remove git pre-commit hook |
+| `config` | Show current configuration |
+| `init` | Create sample `.ai-code-review` file |
+| `help` | Show help message |
+| `version` | Show version |
+
+---
+
+## 📝 Rules File
+
+The AI needs to know your standards. Create an `AGENTS.md` (or any file you configure):
 
 ```markdown
 # Code Review Rules
 
 ## TypeScript
 - Use `const` and `let`, never `var`
-- No `any` types - use proper typing
+- No `any` types - always use proper typing
 - Prefer interfaces over type aliases for objects
+- Use optional chaining (`?.`) and nullish coalescing (`??`)
 
 ## React
-- Use functional components with hooks
-- No `import * as React`
-- Use named exports for components
+- Functional components only, no class components
+- No `import * as React` - use named imports
+- Use semantic HTML elements
+- All images need alt text
+- Interactive elements need aria labels
+
+## Styling
+- Use Tailwind CSS utilities
+- No inline styles
+- No hex colors - use design tokens
 
 ## Testing
-- All new features must have tests
-- Use descriptive test names
-
-## Accessibility
-- All images must have alt text
-- Use semantic HTML elements
+- All new features need tests
+- Test files must be co-located with source files
+- Use descriptive test names that explain the behavior
 ```
 
-The AI will validate your staged files against these rules.
+> 💡 **Pro tip**: Your `AGENTS.md` can also serve as documentation for human reviewers!
 
-## Commands
+---
 
-```bash
-ai-code-review run        # Run review manually
-ai-code-review install    # Install git hook
-ai-code-review uninstall  # Remove git hook
-ai-code-review config     # Show current config
-ai-code-review init       # Create sample config
-ai-code-review help       # Show help
-ai-code-review version    # Show version
-```
-
-## How It Works
-
-1. On `git commit`, the pre-commit hook runs
-2. Gets list of staged files matching your patterns
-3. Reads your rules from `AGENTS.md`
-4. Sends files + rules to your configured AI provider
-5. AI responds with `STATUS: PASSED` or `STATUS: FAILED`
-6. If failed, commit is blocked with violation details
-
-## Examples
+## 🎨 Examples
 
 ### TypeScript/React Project
 
@@ -152,7 +221,8 @@ ai-code-review version    # Show version
 # .ai-code-review
 PROVIDER="claude"
 FILE_PATTERNS="*.ts,*.tsx"
-EXCLUDE_PATTERNS="*.test.ts,*.test.tsx,*.d.ts"
+EXCLUDE_PATTERNS="*.test.ts,*.test.tsx,*.spec.ts,*.d.ts,*.stories.tsx"
+RULES_FILE="AGENTS.md"
 ```
 
 ### Python Project
@@ -161,7 +231,8 @@ EXCLUDE_PATTERNS="*.test.ts,*.test.tsx,*.d.ts"
 # .ai-code-review
 PROVIDER="ollama:codellama"
 FILE_PATTERNS="*.py"
-EXCLUDE_PATTERNS="*_test.py,test_*.py"
+EXCLUDE_PATTERNS="*_test.py,test_*.py,conftest.py"
+RULES_FILE=".coding-standards.md"
 ```
 
 ### Go Project
@@ -170,60 +241,127 @@ EXCLUDE_PATTERNS="*_test.py,test_*.py"
 # .ai-code-review
 PROVIDER="gemini"
 FILE_PATTERNS="*.go"
-EXCLUDE_PATTERNS="*_test.go"
+EXCLUDE_PATTERNS="*_test.go,mock_*.go"
 ```
 
-### Multi-language Project
+### Full-Stack Monorepo
 
 ```bash
 # .ai-code-review
 PROVIDER="claude"
 FILE_PATTERNS="*.ts,*.tsx,*.py,*.go"
-EXCLUDE_PATTERNS="*.test.ts,*_test.py,*_test.go"
+EXCLUDE_PATTERNS="*.test.*,*_test.*,*.mock.*,*.d.ts"
 ```
 
-## Bypass Review
+---
 
-To skip review for a specific commit:
+## 🔄 How It Works
+
+```
+git commit
+    │
+    ▼
+┌───────────────────────────────────────┐
+│  Pre-commit Hook (ai-code-review run) │
+└───────────────────────────────────────┘
+    │
+    ├──▶ Load config (.ai-code-review)
+    │
+    ├──▶ Get staged files matching FILE_PATTERNS
+    │    (excluding EXCLUDE_PATTERNS)
+    │
+    ├──▶ Read rules from AGENTS.md
+    │
+    ├──▶ Build prompt with files + rules
+    │
+    ├──▶ Send to AI provider
+    │
+    └──▶ Parse response
+         │
+         ├── STATUS: PASSED ──▶ ✅ Commit proceeds
+         │
+         └── STATUS: FAILED ──▶ ❌ Commit blocked
+                                  (with violation details)
+```
+
+---
+
+## 🚫 Bypass Review
+
+Sometimes you need to commit without review (emergencies, WIP commits):
 
 ```bash
-git commit --no-verify -m "your message"
+# Skip pre-commit hook
+git commit --no-verify -m "wip: work in progress"
+
+# Or disable temporarily
+CODE_REVIEW_ENABLED=false git commit -m "skip review"
 ```
 
-## Troubleshooting
+---
+
+## 🐛 Troubleshooting
 
 ### "Provider not found"
 
-Make sure the CLI for your provider is installed and in your PATH:
-
 ```bash
+# Check if your provider CLI is installed
 which claude   # Should show path
-which gemini   # Should show path
-which codex    # Should show path
-which ollama   # Should show path
+which gemini
+which codex
+which ollama
+
+# Check if it's working
+echo "Hello" | claude --print
 ```
 
 ### "Rules file not found"
 
-Create an `AGENTS.md` file in your project root with your coding standards.
+Create your rules file:
+```bash
+touch AGENTS.md
+# Add your coding standards
+```
 
 ### "Ambiguous response" in Strict Mode
 
-The AI response must start with `STATUS: PASSED` or `STATUS: FAILED`. If your AI is not following this format, you can:
+The AI must respond with `STATUS: PASSED` or `STATUS: FAILED` as the first line. If it doesn't:
 
-1. Try a different provider
-2. Set `STRICT_MODE="false"` to allow ambiguous responses
+1. Try a different provider (Claude is most reliable)
+2. Check your rules file for confusing instructions
+3. Set `STRICT_MODE="false"` to allow through (not recommended)
 
-## Uninstallation
+### Slow on large files
+
+The tool sends full file contents to the AI. For large files:
+- Add them to `EXCLUDE_PATTERNS`
+- Or split them into smaller files (which is better anyway!)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Some ideas:
+
+- [ ] Add more providers (Copilot, Codeium, etc.)
+- [ ] Support for `.ai-code-review.yaml` format
+- [ ] Caching to avoid re-reviewing unchanged files
+- [ ] GitHub Action version
+- [ ] Output formats (JSON, SARIF for IDE integration)
 
 ```bash
-# Remove from current project
-ai-code-review uninstall
-
-# Remove globally
-./uninstall.sh
+# Fork, clone, and submit PRs!
+git clone https://github.com/YOUR_USER/ai-code-review.git
 ```
 
-## License
+---
 
-MIT
+## 📄 License
+
+MIT © 2024
+
+---
+
+<p align="center">
+  <sub>Built with 🧉 by developers who got tired of repeating code review comments</sub>
+</p>
