@@ -1,9 +1,9 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.2.0-blue.svg" alt="Version">
+  <img src="https://img.shields.io/badge/version-2.3.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/bash-5.0%2B-orange.svg" alt="Bash">
   <img src="https://img.shields.io/badge/homebrew-tap-FBB040.svg" alt="Homebrew">
-  <img src="https://img.shields.io/badge/tests-68%20passing-brightgreen.svg" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-104%20passing-brightgreen.svg" alt="Tests">
   <img src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" alt="PRs Welcome">
 </p>
 
@@ -981,9 +981,10 @@ make check
 | Module | Tests | Description |
 |--------|-------|-------------|
 | `cache.sh` | 27 | Hash functions, cache validation, file caching |
-| `providers.sh` | 13 | Provider parsing, validation, info display |
+| `providers.sh` | 37 | Ollama API/CLI, routing, validation, security |
 | CLI commands | 28 | init, install, uninstall, run, config, cache |
-| **Total** | **68** | Full coverage of core functionality |
+| Ollama integration | 12 | Real Ollama tests (local only, requires `qwen2.5:0.5b`) |
+| **Total** | **104** | Full coverage of core functionality |
 
 ### Adding New Tests
 
@@ -999,7 +1000,15 @@ shellspec spec/unit/my_feature_spec.sh
 
 ## 📋 Changelog
 
-### v2.2.0 (Latest)
+### v2.3.0 (Latest)
+- ✅ Fixed Ollama ANSI escape codes breaking STATUS parsing (#6)
+- ✅ New `execute_ollama_api()` using curl for clean JSON responses
+- ✅ Fallback `execute_ollama_cli()` with ANSI stripping
+- ✅ Security validation for `OLLAMA_HOST`
+- ✅ GitHub Actions CI pipeline (lint, unit tests, integration tests)
+- ✅ Expanded test suite to **104 tests**
+
+### v2.2.0
 - ✅ Added comprehensive test suite with **68 tests**
 - ✅ Unit tests for `cache.sh` and `providers.sh`
 - ✅ Integration tests for all CLI commands
